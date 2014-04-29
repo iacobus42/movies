@@ -23,8 +23,6 @@ for line in movies:
     print j, float(j) / 50
     line = line.split(",")
     j = j + 1
-    if j >= 3:
-        break
     if (line[0] != "year") & (line[3] == "True"): 
         try:
             startTime = time.time()
