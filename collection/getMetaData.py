@@ -16,9 +16,9 @@ gfile.write("rtID, genre\n")
 movies = open(idfn)
 j = 0
 keyIndex = 0
-keys = ["8frfe3crznr589ddz8m484c9",
-        "uhaar3a93r8jqamjzmg5kum8",
-        "m5xwmcz54ymb3p7pfnem4nxu"]
+keys = ["m5xwmcz54ymb3p7pfnem4nxu",
+        "8frfe3crznr589ddz8m484c9",
+        "uhaar3a93r8jqamjzmg5kum8"]
 currentKey = keys[0]
 for line in movies:
     print j, float(j) / 50
