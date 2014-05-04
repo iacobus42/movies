@@ -10,28 +10,33 @@ con = mbd.connect('localhost', 'simmerin', 'simmerin', 'movies')
 
 with con:
     cur = con.cursor()
-    cur.execute("DROP TABLE IF EXISTS reviews")
-    cur.execute("CREATE TABLE reviews (\
-                     reviewID INT PRIMARY KEY AUTO_INCREMENT, \
-                     rtid INT, \
-                     reviewer VARCHAR(50), \
-                     publication VARCHAR(100), \
-                     month INT, \
-                     year INT, \
-                     score INT, \
-                     fresh INT)")
+    # the following line is commented out "for safety" as this program takes
+    # >= 6 hours to run and I do not want to accidentally drop the table!
+    # When running for the first time the following lines should be uncommented
+    #cur.execute("DROP TABLE IF EXISTS reviews")
+    #cur.execute("CREATE TABLE reviews (\
+    #                 reviewID INT PRIMARY KEY AUTO_INCREMENT, \
+    #                 rtid INT, \
+    #                 reviewer VARCHAR(50), \
+    #                 publication VARCHAR(100), \
+    #                 month INT, \
+    #                 year INT, \
+    #                 score INT, \
+    #                 fresh INT)")
                 
     cur.execute("SELECT rtid FROM rtid WHERE rtid IS NOT NULL")
     
 rtids = map(lambda x: x[0], cur.fetchall())
 j = -1
 keyIndex = 0
-keys = ["39jxydympemjqq5g228achpp",
-        "gkruk3vzfg2vqbv76t94dy5r"]
+keys = ["gkruk3vzfg2vqbv76t94dy5r",
+        "39jxydympemjqq5g228achpp"]
 currentKey = keys[keyIndex]
 for id in rtids:
     j = j + 1        
     print j
+    if (id in rtids[0:3674]):
+        continue        
     try:
         startTime = time.time()
         url = ("http://api.rottentomatoes.com/api/public/v1.0/movies/" + 
