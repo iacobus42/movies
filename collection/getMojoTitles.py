@@ -42,9 +42,10 @@ for year in range(1998, 2015):
         soup = BeautifulSoup(html)
         # Identify the table of movie names
         table = soup.find("table", attrs=tattrs)
-        # loop through each row and pull out the title, gross and date
+        # find the rows in the table
         rows = table.find_all("tr")
         nrow = len(rows)
+        # loop through each row and pull out the title, gross and date
         for i in range(2, (nrow - 4)):
             rowText = rows[i].find_all(text = True)
             rank = rowText[0].replace(",", " ")

@@ -9,6 +9,7 @@ import MySQLdb as mbd
 con = mbd.connect('localhost', 'simmerin', 'simmerin', 'movies')
 
 with con:
+    # set up the connection and the tables
     cur = con.cursor()
     # the following line is commented out "for safety" as this program takes
     # >= 6 hours to run and I do not want to accidentally drop the table!
@@ -27,26 +28,30 @@ with con:
     cur.execute("SELECT rtid FROM rtid WHERE rtid IS NOT NULL")
     
 rtids = map(lambda x: x[0], cur.fetchall())
-j = -1
-keyIndex = 0
+j = -1 # counter as before
+keyIndex = 0 # key handling logic is the same as the other scripts
 keys = ["gkruk3vzfg2vqbv76t94dy5r",
         "39jxydympemjqq5g228achpp"]
 currentKey = keys[keyIndex]
+# loop through each id and grab the reviews
 for id in rtids:
-    j = j + 1        
-    print j
-    if (id in rtids[0:3674]):
-        continue        
+    j = j + 1          
     try:
         startTime = time.time()
+        # call out to the api
         url = ("http://api.rottentomatoes.com/api/public/v1.0/movies/" + 
                 str(id) + "/reviews.json?review_type=all&page_limit=50" +
                 "&page=1&country=us&apikey=" + str(currentKey))
         reviews = urllib2.urlopen(url)
+        # parse the json
         reviews = json.load(reviews)  
         totalReviews = reviews["total"]
+        # I can only return 50 reviews per page, so find the total 
+        # number of pages required to show all the reviews
         totalPages = int(math.ceil(float(totalReviews) / 50))
+        # loop through all of the pages required
         for page in range(totalPages):
+            # we already made the first call, so no need to repeat it
             if (page != 0):
                 startTime = time.time()
                 url = ("http://api.rottentomatoes.com/api/public/v1.0/movies/" + 
@@ -55,6 +60,8 @@ for id in rtids:
                         "&country=us&apikey=" + str(currentKey))
                 reviews = json.load(urllib2.urlopen(url))
             reviews = reviews["reviews"]
+            # loop through the reviews in each page and pull out the score,
+            # month, year, reviewer, etc
             for review in reviews:
                 pub = review["publication"].replace(",", " ").replace("'", "")
                 reviewerName  = review["critic"].replace("'", "")
@@ -78,8 +85,8 @@ for id in rtids:
                     year = "NULL"
                     
                 fresh = int((review["freshness"] == "fresh") * 1)
-                endTime = time.time()
                 with con:
+                    # write to the database
                     cur.execute("INSERT INTO reviews (rtid, reviewer, publication, month, year, score, fresh) \
                             VALUES (" + str(id) + ", '" +
                             str(reviewerName) + "', '" + 
@@ -88,10 +95,13 @@ for id in rtids:
                             str(year) + ", " + 
                             str(score) + ", " + 
                             str(fresh) + ")")
+                endTime = time.time()
+                # sleep if required to stay under the rate limit
                 if (endTime - startTime) <= 0.275:
                     sleepTime = 0.275 - (endTime - startTime)
                     time.sleep(sleepTime)
     except:
+        # same rate limit handling logic as in the other scripts
         print "rate limited"
         if (keyIndex < 2):
             print "updating key"
