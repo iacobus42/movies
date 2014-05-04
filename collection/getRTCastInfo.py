@@ -15,6 +15,7 @@ with con:
                  actorName VARCHAR(50), \
                  rtid INT)")
     cur.execute("SELECT rtid FROM rtid WHERE rtid IS NOT NULL")
+
     rtids = map(lambda x: x[0], cur.fetchall())
     j = 0
     keyIndex = 0
