@@ -49,7 +49,8 @@ shinyServer(function(input, output) {
                         method = "loess", alpha = 0) + 
             theme_bw() + 
             scale_x_continuous("Mean Critic Score") + 
-            scale_y_continuous("Publication Score", limits = c(0, 1))
+            scale_y_continuous("Publication Score", limits = c(0, 1)) +
+            geom_abline(slope = 1/100, lty = 2)
         print(compPlot)
     })
     output$time_plot <- renderPlot({
@@ -95,7 +96,7 @@ shinyServer(function(input, output) {
         timePlot <- ggplot() + 
             geom_line(aes(x = date, y = fresh), data = mByM, 
                       alpha = 0.5) + 
-            geom_point(aes(x = date, y = fresh, size = cByM$x), 
+            geom_point(aes(x = date, y = fresh), size = cByM$x, 
                        data = mByM) + 
             geom_smooth(aes(x = date, y = fresh), data = mByM, 
                         method = "loess", alpha = 0, size = 2) + 
@@ -146,12 +147,10 @@ shinyServer(function(input, output) {
         compare <- merge(mByM, oByM, by = "date")
         genrePlot <- ggplot() + 
             geom_point(aes(x = Group.1, y = x), data = mByG, size = log(cByG$x) / max(log(cByG$x)) * 5) + 
-            geom_hline(aes(yintercept = mean(outletData$fresh, na.rm = TRUE)), 
-                       lty = 2) + 
             theme_bw() + 
             scale_x_discrete(name = "") + 
             scale_y_continuous("Mean Score") + 
-            theme(axis.text.x = element_text(angle = 90))
+            theme(axis.text.x = element_text(angle = 90)) 
         print(genrePlot)        
     })
 })
