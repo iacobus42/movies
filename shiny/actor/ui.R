@@ -15,4 +15,7 @@ shinyUI(pageWithSidebar(
                     choices = actors,
                     selected = "Nicolas Cage")),
     mainPanel(
-        plotOutput(outputId = "genre_plot"))))
+        tabsetPanel(
+            tabPanel("By Genre", plotOutput("genre_plot")), 
+            tabPanel("By Time", plotOutput("time_plot"))))
+))
