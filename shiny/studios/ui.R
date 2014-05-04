@@ -6,7 +6,7 @@ con <- dbConnect(m, user='simmerin',
                  host='localhost',
                  dbname='movies')
 studios <- dbGetQuery(con, "select distinct studio from metadata")$studio
-
+dbDisconnect(con)
 shinyUI(pageWithSidebar(    
     headerPanel(""),
     sidebarPanel(
@@ -15,4 +15,7 @@ shinyUI(pageWithSidebar(
                     choices = studios,
                     selected = studios[1])),
     mainPanel(
-        plotOutput(outputId = "genre_plot"))))
+        tabsetPanel(
+            tabPanel("By Genre", plotOutput("genre_plot")), 
+            tabPanel("By Time", plotOutput("time_plot"))
+))))
