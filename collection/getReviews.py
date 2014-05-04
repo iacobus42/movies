@@ -2,31 +2,40 @@
 
 import codecs
 import urllib2
-import time
 import json
 import math
-from rottentomatoes import RT
+import time
+import MySQLdb as mbd
+               
+con = mbd.connect('localhost', 'simmerin', 'simmerin', 'movies')
 
-idfn = "../data/rottenTomatoIds.csv"
-rfn = "../data/reviewData.csv"
-rfile = codecs.open(rfn, "w", "utf-8", "replace")
-rfile.write("rtID, reviewer, pub, score, date,fresh\n")
-
-movies = open(idfn)
-j = 0
-keyIndex = 0
-keys = ["8frfe3crznr589ddz8m484c9",
-        "uhaar3a93r8jqamjzmg5kum8",
-        "m5xwmcz54ymb3p7pfnem4nxu"]
-currentKey = keys[0]
-for line in movies:
-    print j, float(j) / 50
-    line = line.split(",")
-    j = j + 1
-    if (line[0] != "year") & (line[3] == "True"): 
+with con:
+    cur = con.cursor()
+    cur.execute("DROP TABLE IF EXISTS reviews")
+    cur.execute("CREATE TABLE reviews (\
+                     reviewID INT PRIMARY KEY AUTO_INCREMENT, \
+                     rtid INT, \
+                     reviewer VARCHAR(50), \
+                     publication VARCHAR(100), \
+                     month INT, \
+                     year INT, \
+                     score INT, \
+                     fresh INT)")
+                
+    cur.execute("SELECT rtid FROM rtid WHERE rtid IS NOT NULL")
+    rtids = map(lambda x: x[0], cur.fetchall())
+    j = -1
+    keyIndex = 1
+    keys = ["8frfe3crznr589ddz8m484c9",
+            "m5xwmcz54ymb3p7pfnem4nxu",
+            "uhaar3a93r8jqamjzmg5kum8",
+]
+    currentKey = keys[keyIndex]
+    for id in rtids:
+        j = j + 1        
+        print j
         try:
             startTime = time.time()
-            id = line[4].replace("\n", "")
             url = ("http://api.rottentomatoes.com/api/public/v1.0/movies/" + 
                     str(id) + "/reviews.json?review_type=all&page_limit=50" +
                     "&page=1&country=us&apikey=" + str(currentKey))
@@ -36,74 +45,109 @@ for line in movies:
             totalPages = int(math.ceil(float(totalReviews) / 50))
             for page in range(totalPages):
                 if (page != 0):
+                    startTime = time.time()
                     url = ("http://api.rottentomatoes.com/api/public/v1.0/movies/" + 
                             str(id) + "/reviews.json?review_type=all&page_limit=50" +
-                               "&page=" + str(page + 1) + 
-                               "&country=us&apikey=" + str(currentKey))
+                            "&page=" + str(page + 1) + 
+                            "&country=us&apikey=" + str(currentKey))
                     reviews = json.load(urllib2.urlopen(url))
                 reviews = reviews["reviews"]
                 for review in reviews:
-                    publication = review["publication"].replace(",", " ")
-                    criticName = review["critic"]
+                    pub = review["publication"].replace(",", " ").replace("'", "")
+                    reviewerName  = review["critic"].replace("'", "")
                     try: 
                         score = review["original_score"].split("/")
-                        print score
-                        score = float(score[0]) / int(score[1]) * 100
+                        score = int(round(float(score[0]) / int(score[1]) * 100))
                     except:
-                        score = "NA"
-                    date = review["date"]
-                    fresh = review["freshness"]
-                    rfile.write(u'"{}",{},{},{},{},{}\n'.format(id, 
-                                    criticName, publication, score, 
-                                    date,fresh))
+                        score = "NULL"
+                    try:
+                        date = review["date"].split("-")
+                        try:
+                            month = date[1]
+                        except:
+                            month = "NULL"
+                        try:
+                            year = date[0]
+                        except:
+                            year = "NULL"
+                    except:
+                        month = "NULL"
+                        year = "NULL"
+                        
+                    fresh = int((review["freshness"] == "fresh") * 1)
                     endTime = time.time()
-                if (endTime - startTime) <= 0.25:
-                    sleepTime = 0.25 - (endTime - startTime)
-                    time.sleep(sleepTime)
+                    cur.execute("INSERT INTO reviews (rtid, reviewer, publication, month, year, score, fresh) \
+                                VALUES (" + str(id) + ", '" +
+                                str(reviewerName) + "', '" + 
+                                str(pub) + "', " + 
+                                str(month) + ", " + 
+                                str(year) + ", " + 
+                                str(score) + ", " + 
+                                str(fresh) + ")")
+                    if (endTime - startTime) <= 0.275:
+                        sleepTime = 0.275 - (endTime - startTime)
+                        time.sleep(sleepTime)
         except:
             print "rate limited"
-            if (keyIndex < len(keys)):
+            if (keyIndex < 2):
                 print "updating key"
                 print "key " + str(keyIndex + 1)                
                 keyIndex = keyIndex + 1
                 currentKey = keys[keyIndex]
+                time.sleep(0.25)
             else:
                 print "gonna wait"
-                time.sleep(24 * 60 * 60)
+                time.sleep(20 * 60)
                 keyIndex = 0
                 currentKey = keys[keyIndex]
             startTime = time.time()
-            id = line[4].replace("\n", "")
-            url = ("http://api.rottentomatoes.com/api/public/v1.0/movies/" + 
-                    str(id) + "/reviews.json?review_type=all&page_limit=50" +
-                    "&page=1&country=us&apikey=" + str(currentKey))
             reviews = urllib2.urlopen(url)
             reviews = json.load(reviews)  
             totalReviews = reviews["total"]
             totalPages = int(math.ceil(float(totalReviews) / 50))
             for page in range(totalPages):
                 if (page != 0):
+                    startTime = time.time()
                     url = ("http://api.rottentomatoes.com/api/public/v1.0/movies/" + 
                             str(id) + "/reviews.json?review_type=all&page_limit=50" +
-                               "&page=" + str(page + 1) + 
-                               "&country=us&apikey=" + str(currentKey))
+                            "&page=" + str(page + 1) + 
+                            "&country=us&apikey=" + str(currentKey))
                     reviews = json.load(urllib2.urlopen(url))
                 reviews = reviews["reviews"]
                 for review in reviews:
-                    publication = review["publication"].replace(",", " ")
-                    criticName = review["critic"]
+                    pub = review["publication"].replace(",", " ").replace("'", "")
+                    reviewerName  = review["critic"].replace("'", "")
                     try: 
                         score = review["original_score"].split("/")
-                        score = float(score[0]) / score[1] * 100
+                        score = int(round(float(score[0]) / int(score[1]) * 100))
                     except:
-                        score = "NA"
-                    date = review["date"]
-                    fresh = review["freshness"]
-                    rfile.write(u'"{}",{},{},{},{},{}\n'.format(id, 
-                                    criticName, publication, score, 
-                                    date,fresh))
+                        score = "NULL"
+                    try:
+                        date = review["date"].split("-")
+                        try:
+                            month = date[1]
+                        except:
+                            month = "NULL"
+                        try:
+                            year = date[0]
+                        except:
+                            year = "NULL"
+                    except:
+                        month = "NULL"
+                        year = "NULL"
+                        
+                    fresh = int((review["freshness"] == "fresh") * 1)
                     endTime = time.time()
-                if (endTime - startTime) <= 0.25:
-                    sleepTime = 0.25 - (endTime - startTime)
-                    time.sleep(sleepTime)
-rfile.close()
+                    cur.execute("INSERT INTO reviews (rtid, reviewer, publication, month, year, score, fresh) \
+                                VALUES (" + str(id) + ", '" + 
+                                str(reviewerName) + "', '" + 
+                                str(pub) + "', " + 
+                                str(month) + ", " + 
+                                str(year) + ", " + 
+                                str(score) + ", " + 
+                                str(fresh) + ")")
+                    if (endTime - startTime) <= 0.275:
+                        sleepTime = 0.275 - (endTime - startTime)
+                        time.sleep(sleepTime)
+            
+            

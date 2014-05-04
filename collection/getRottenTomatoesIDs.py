@@ -1,45 +1,41 @@
 # -*- coding: utf-8 -*-
 
-import codecs
 import time
 from rottentomatoes import RT
-rt = RT()
+rt = RT("uhaar3a93r8jqamjzmg5kum8")
+import MySQLdb as mbd
 
-tfn = "../data/boxofficemojo_titles.csv"
-ofn = "../data/rottenTomatoIds.csv"
-ofile = codecs.open(ofn, "w", "utf-8", "replace")
-ofile.write("mojoTitle, rtTitle, year, found, rtID\n")
+con = mbd.connect('localhost', 'simmerin', 'simmerin', 'movies')
 
-titles = open(tfn)
 j = 0
-for line in titles:
-    print j
-    line = line.split(",")
-    if line[0] != "year": 
-        title = line[2]
-        year = line[0]
+with con:
+    cur = con.cursor()
+    cur.execute("DROP TABLE IF EXISTS rtid")
+    cur.execute("CREATE TABLE rtid(id INT PRIMARY KEY AUTO_INCREMENT, \
+                 rtid INT)")
+    cur.execute("SELECT * FROM mojo")
+    titles = cur.fetchall()
+    for movie in titles:
+        print j
+        title = movie[1]
+        year = movie[5]
+        startTime = time.time()
         searchResults = rt.search(title)
         correctFilm = 0    
         found = False
         for result in searchResults:
-            if result["year"] == int(year):
+            if result["year"] == year:
                 correctFilm = result
                 found = True
                 break
         if found:
-            year = correctFilm["year"]
-            rtTitle = correctFilm["title"].replace(",", " ")
             rtID = correctFilm["id"]
-            ofile.write(u'"{}",{},{},{},{}\n'.format(title, rtTitle, year, 
-                        found, rtID))
         else:
-            rtTitle = ""
-            rtID = ""
-            ofile.write(u'"{}",{},{},{},{}\n'.format(title, rtTitle, year, 
-                        found, rtID))
+            rtID = "NULL"
+        cur.execute("INSERT INTO rtid (rtid) VALUE (" + str(rtID) + ")")
         j = j + 1
-        time.sleep(0.25)
+        endTime = time.time()
+        if (endTime - startTime) < 0.25:
+            time.sleep(0.25 - (endTime - startTime))
 
-
-ofile.close()    
 
