@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Visualizing Rotten Tomatoes</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+<body class="preview" id="top" data-target=".subnav" data-offset="80">
+  <!-- Navbar
+    ================================================== -->
+ <div class="navbar navbar-static-top">
+   <div class="navbar-inner">
+     <div class="container">
+       <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+       </a>
+       <a class="brand" href="index.html">Visual Tomatoes</a>
+       <div class="nav-collapse collapse" id="main-menu">
+        <ul class="nav" id="main-menu-left">
+          <li>
+            <a href="index.html">Home</a>
+          </li>
+          <li>
+            <a href="about.html">About</a>
+          </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Methods <b class="caret"></b></a>
+            <ul class="dropdown-menu" id="swatch-menu">
+              <li><a href="database.html">Database Structure</a></li>
+              <li><a href="dataCollection.html">Data Collection</a></li>
+              <li><a href="shiny.html">Visualization</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="http://github.com/iacobus42/movies">Code on GitHub</a>
+          </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps <b class="caret"></b></a>
+            <ul class="dropdown-menu" id="swatch-menu">
+              <li><a href="studio.html">Visualize by Studio</a></li>
+              <li><a href="genre.html">Visualize by Genre</a></li>
+              <li><a href="actor.html">Visualize by Actor</a></li>
+              <li><a href="reviewer.html">Visualize by Reviewer</a></li>
+              <li><a href="publication.html">Visualize by Publication</a></li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav pull-right" id="main-menu-right">
+          <li><a rel="tooltip" target="_blank" href="http://builtwithbootstrap.com/" title="Showcase of Bootstrap sites &amp; apps" onclick="_gaq.push(['_trackEvent', 'click', 'outbound', 'builtwithbootstrap']);">Built With Bootstrap <i class="icon-share-alt"></i></a></li>
+        </ul>
+       </div>
+     </div>
+   </div>
+ </div>
+</div>
+<div class="container">
+
+
+<!-- content
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="row">
+    <div class="span6">
+      <h1>Rotten Reviewers</h1>
+      <p class="lead">Visualizing Rotten Tomatoes Reviews.</p>
+    </div>
+    <div class="span6">
+    </div>
+  </div>
+  <div class="row">
+    <div class="span12">
+<h3>Database Structure</h3>
+
+<p>Due to the lower system demands, greater documentation with Python and R and
+the JSON format of the Rotten Tomatoes API, I opted to use MySQL over Oracle and 
+APEX. A dump of the MySQL database (30.8 MB) can be found 
+<a href="http://jacobsimmering.com/documents/movies.sql">here</a>. 
+The MySQL database contains six tables. </p>
+
+<p>The first table, <code>mojo</code> contains four elements, </p>
+
+<ul>
+<li><code>id</code> (Primary key)</li>
+<li><code>title</code></li>
+<li><code>release year</code></li>
+<li><code>release month</code></li>
+</ul>
+
+<p>The first element, <code>id</code>, is an int sequence starting at 1 and going to 5018. This 
+maps to the top 300 movies from each year 1998 to 2013 and the films released 
+in Q1 2014. The second element is a VARCHAR string that contains the title
+of the film. The third and fourth elements are both ints that contain the 
+month and year of the release date. </p>
+
+<p>The second table <code>rtid</code> provides a mapping from the titles derived from Box
+Office Mojo to the Rotten Tomatoes IDs. These were obtained using the Rotten
+Tomatoes API search feature using the title as the input string. The first 
+matching result with the same year as from Box Office Mojo provided the 
+Rotten Tomatoes ID. To this end, the table contains two elements, </p>
+
+<ul>
+<li><code>id</code> (Primary key)</li>
+<li><code>rtid</code></li>
+</ul>
+
+<p>The <code>id</code> variable is the same as the <code>id</code> variable in the <code>mojo</code> table. This
+provides a linkage from Rotten Tomatoes to the Box Office Mojo data. The Rotten
+Tomatoes ID is given by the <code>rtid</code> variable, an int. Not all
+of the searches returned a match, approximately 80% (4037) of the titles were 
+mapped to a Rotten Tomatoes ID. </p>
+
+<p>The third table, <code>cast</code>, contains information about the casts of the various
+films. This table contains 4 elements:</p>
+
+<ul>
+<li><code>castPK</code> (Primary key)</li>
+<li><code>rtid</code></li>
+<li><code>actorID</code></li>
+<li><code>actorName</code></li>
+</ul>
+
+<p>The <code>castPK</code> is an int that serves as the primary key. The variable <code>rtid</code> 
+serves as the linkage to the other tables via the Rotten Tomatoes ID. The 
+variables <code>actorID</code> and <code>actorName</code> provide information about the actor: 
+<code>actorID</code> is the Rotten Tomatoes actor ID and is an int, <code>actorName</code> is the 
+name of the actor and is a VARCHAR. While not strictly normalized, I opted 
+against making a separate table to contain a mapping between <code>actorID</code> and 
+<code>actorName</code>. Any analysis using this table would depend on a join and it did
+not make sense to divide up the data only to merge it at the time of analysis. </p>
+
+<p>The fourth table, <code>metadata</code>, contains the Rotten Tomatoes metadata for the 
+movie. Specifically, this table contains seven elements:</p>
+
+<ul>
+<li><code>mpk</code> (Primary key)</li>
+<li><code>rtid</code></li>
+<li><code>criticScore</code></li>
+<li><code>userScore</code></li>
+<li><code>director</code></li>
+<li><code>studio</code></li>
+<li><code>rating</code></li>
+<li><code>runTime</code></li>
+</ul>
+
+<p><code>mpk</code> is a sequence primary key and is an int. <code>rtid</code> provides a mapping to the
+other Rotten Tomatoes data and via <code>id</code> to the Box Office Mojo data. 
+<code>criticScore</code> and <code>userScore</code> are both ints that contain the critic and user
+scores on a scale of 0 to 100, respectively. The first director listed on 
+Rotten Tomatoes for the film is stored as a VARCHAR labeled <code>director</code>. The 
+studio that produced the film is contained in a VARCHAR as <code>studio</code>. The MPAA 
+rating of the movie is contained in the VARCHAR element <code>rating</code> and the 
+run-time, in minutes, is stored as an int labeled <code>runTime</code>. </p>
+
+<p>The fifth table contains information about each films genre, as classified by
+Rotten Tomatoes. Each film can belong to a number of genres and so this was 
+not combined with the metadata in <code>metadata</code>. Instead an additional table
+named <code>genres</code> was constructed. This table has three elements, </p>
+
+<ul>
+<li><code>gpk</code> (Primary key)</li>
+<li><code>rtid</code></li>
+<li><code>genre</code></li>
+</ul>
+
+<p>Where <code>gpk</code> is an int sequence and served as the primary key. <code>genre</code> is
+a VARCHAR and contains a string describing the genre. Each <code>rtid</code> may occur
+multiple times as the film may belong to multiple genres. </p>
+
+<p>The sixth table contains the reviews and is named <code>reviews</code>. It has </p>
+
+<ul>
+<li><code>reviewID</code> (Primary key)</li>
+<li><code>rtid</code></li>
+<li><code>reviewer</code></li>
+<li><code>publication</code></li>
+<li><code>month</code></li>
+<li><code>year</code></li>
+<li><code>score</code></li>
+<li><code>fresh</code></li>
+</ul>
+
+<p>In this case, <code>reviewID</code> is an sequence int that serves as the primary key.
+<code>rtid</code> provides the linkage to the other tables. <code>reviewer</code> and <code>publication</code>
+are both VARCHARs that contain a string that is the reviewer&#39;s name and 
+the publication&#39;s name, respectively. <code>month</code> and <code>year</code> describe the month
+and year of the review publication. For the reviews with original scores 
+provided by Rotten Tomatoes, each score was transformed to a 0-100 scale and
+stored as an int in the <code>score</code> element. Finally, <code>fresh</code> is an int containing
+0 or 1 depending on whether Rotten Tomatoes coded the review as <code>fresh</code> or 
+<code>rotten</code>. </p>
+    </div>
+  </div>
+</header>
+
+</section>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>

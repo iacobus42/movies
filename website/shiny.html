@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Visualizing Rotten Tomatoes</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+<body class="preview" id="top" data-target=".subnav" data-offset="80">
+  <!-- Navbar
+    ================================================== -->
+ <div class="navbar navbar-static-top">
+   <div class="navbar-inner">
+     <div class="container">
+       <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+       </a>
+       <a class="brand" href="index.html">Visual Tomatoes</a>
+       <div class="nav-collapse collapse" id="main-menu">
+        <ul class="nav" id="main-menu-left">
+          <li>
+            <a href="index.html">Home</a>
+          </li>
+          <li>
+            <a href="about.html">About</a>
+          </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Methods <b class="caret"></b></a>
+            <ul class="dropdown-menu" id="swatch-menu">
+              <li><a href="database.html">Database Structure</a></li>
+              <li><a href="dataCollection.html">Data Collection</a></li>
+              <li><a href="shiny.html">Visualization</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="http://github.com/iacobus42/movies">Code on GitHub</a>
+          </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps <b class="caret"></b></a>
+            <ul class="dropdown-menu" id="swatch-menu">
+              <li><a href="studio.html">Visualize by Studio</a></li>
+              <li><a href="genre.html">Visualize by Genre</a></li>
+              <li><a href="actor.html">Visualize by Actor</a></li>
+              <li><a href="reviewer.html">Visualize by Reviewer</a></li>
+              <li><a href="publication.html">Visualize by Publication</a></li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav pull-right" id="main-menu-right">
+          <li><a rel="tooltip" target="_blank" href="http://builtwithbootstrap.com/" title="Showcase of Bootstrap sites &amp; apps" onclick="_gaq.push(['_trackEvent', 'click', 'outbound', 'builtwithbootstrap']);">Built With Bootstrap <i class="icon-share-alt"></i></a></li>
+        </ul>
+       </div>
+     </div>
+   </div>
+ </div>
+</div>
+<div class="container">
+
+
+<!-- content
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="row">
+    <div class="span6">
+      <h1>Rotten Reviewers</h1>
+      <p class="lead">Visualizing Rotten Tomatoes Reviews.</p>
+    </div>
+    <div class="span6">
+    </div>
+  </div>
+  <div class="row">
+    <div class="span12">
+<h3>Analysis</h3>
+
+<p>As SQL provides essentially zero analytical capacity and no visualization 
+ability, I opted to connect the MySQL database to R. R is a functional domain
+specific language with a strong emphasis on data analysis and visualization 
+and is rapidly becoming a dominant platform in data analytics and data mining. 
+R provides simple, clear and powerful methods for manipulating and analyzing 
+data. Additionally, the <a href="http://cran.r-project.org/web/packages/ggplot2/index.html"><code>ggplot2</code></a> 
+package forms a very powerful graphical system for R and the 
+<a href="http://cran.r-project.org/web/packages/shiny/index.html"><code>shiny</code></a> package makes
+the creation of dynamic graphics and web apps much easier than traditional 
+methods, such as PHP. </p>
+
+<p>A <code>shiny</code> app requires two separate files, <code>ui.R</code> and <code>server.R</code>. <code>ui.R</code> 
+describes the front-end user interface, how the user change inputs and how the 
+results and displayed. The <code>server.R</code> file describes processing done on those
+inputs and contains the code for the generation of a graphic. The code for 
+each of the <code>shiny</code> apps can be found on my 
+<a href="https://github.com/iacobus42/movies/tree/master/shiny">github repo</a>. </p>
+
+<p>Consider
+the <a href="http://jacobsimmering.com:3838/studios/"><code>studio</code> app</a>. The user is 
+presented with a webpage with two elements, the first is a drop-down menu 
+containing a list of the distinct studios in the Rotten Tomatoes data and the 
+second is a plot of each film&#39;s review and the mean review by genre for all 
+the movies produced by that studio. The front-end is coded as </p>
+
+<pre><code># loading required library
+library(DBI)
+library(RMySQL)
+# setting up the MySQL connection
+m &lt;- dbDriver(&quot;MySQL&quot;);
+con &lt;- dbConnect(m, user=&#39;simmerin&#39;, 
+                 password=&#39;simmerin&#39;,
+                 host=&#39;localhost&#39;,
+                 dbname=&#39;movies&#39;)
+# grabbing the studio listing with sql from the metadata table
+studios &lt;- dbGetQuery(con, &quot;select distinct studio from metadata&quot;)$studio
+# releasing the connection to the database
+dbDisconnect(con)
+
+# this describes the UI and how input is accepted
+shinyUI(pageWithSidebar(    
+    headerPanel(&quot;&quot;),
+    sidebarPanel(
+        # sets up a sidebar with a dropdown menu
+        selectInput(&quot;studio&quot;, # the variable name for the backend
+                    label = &quot;Which Studio?&quot;, # the label on the dropdown menu
+                    choices = studios, # the vector of options for the user
+                    selected = studios[1])), # the default option
+    mainPanel( 
+        tabsetPanel(
+        # sets up a two tabbed graph region
+            # the genre graph, output id of genre_plot
+            tabPanel(&quot;By Genre&quot;, plotOutput(&quot;genre_plot&quot;)),
+            # the time series plot, output id of time_plot
+            tabPanel(&quot;By Time&quot;, plotOutput(&quot;time_plot&quot;))
+))))
+</code></pre>
+
+<p>Rather simply, this code connects to a MySQL database named <code>movies</code> and 
+performs the query shown to get a list of all the studios in the data. It then
+describes a layout with a sidebar providing a drop-down box (<code>selectInput</code>) 
+containing the results of the query and a main panel that contains an 
+two tabs, one with a plot named <code>genre_plot</code> and the other with a plot named
+<code>time_plot</code>. </p>
+
+<p>The <code>server.R</code> file is significantly more complex:</p>
+
+<pre><code>shinyServer(function(input, output) {
+    # loading required librarys
+    library(ggplot2)
+    library(DBI)
+    library(RMySQL)
+    library(scales)
+    # setting up the mysql connection
+    m &lt;- dbDriver(&quot;MySQL&quot;);
+    con2 &lt;- dbConnect(m, user=&#39;simmerin&#39;, 
+                     password=&#39;simmerin&#39;,
+                     host=&#39;localhost&#39;,
+                     dbname=&#39;movies&#39;)
+    # below describes the genre plot generation
+    output$genre_plot &lt;- renderPlot({
+        # most of the data processing is done with R. The SQL resulted in a 
+        # poorly performing app, often timing out. Using R for the processing
+        # and aggregation sped up the app by 10-1000 fold. 
+        # bringing in the scores from the metadata table
+        scores &lt;- dbGetQuery(con2, &quot;select rtid, criticScore, studio from metadata&quot;)
+        # bringing in the genre from the genres table
+        genres &lt;- dbGetQuery(con2, &quot;select rtid, genre from genres&quot;)
+        # bringing in the mapping between rtid and id
+        link &lt;- dbGetQuery(con2, &quot;select rtid, id from rtid&quot;)
+        # the mojo release dates
+        dates &lt;- dbGetQuery(con2, &quot;select id, month, year from mojo&quot;)
+        dbDisconnect(con2) # release the connection
+
+        # dropping the films from other studios
+        scores &lt;- scores[scores$studio == input$studio, ]
+        # merges does a natural join, drops unrelated ids
+        data &lt;- merge(scores, genres, by = &quot;rtid&quot;) 
+        # bringing in the linking between id and rtid
+        data &lt;- merge(data, link, by = &quot;rtid&quot;) 
+        # bringing in the release dates
+        data &lt;- merge(data, dates, by = &quot;id&quot;)
+        # formating as date for R
+        data$date &lt;- as.Date(paste(data$year, data$month, &quot;01&quot;, sep = &quot;-&quot;))
+        # getting mean/counts by genre
+        mByG &lt;- aggregate(data$criticScore, by = list(data$genre),
+                          mean)
+        cByG &lt;- aggregate(rep(1, length(data$genre)), by = list(data$genre),
+                          sum)
+        # getting mean/counts by month
+        mByM &lt;- aggregate(data$criticScore, by = list(data$date),
+                          mean)
+        cByM &lt;- aggregate(rep(1, length(data$date)), 
+                          list(data$date),
+                          sum)
+        # overall mean
+        meanLine &lt;- data.frame(meanLine = mean(data$criticScore, na.rm = TRUE))
+        # grammar of graphics syntax to generate the genre plot shown on the app
+        p &lt;- ggplot() + 
+            geom_point(aes(x = genre, y = criticScore), data = data, alpha = 0.25) + 
+            geom_point(aes(x = Group.1, y = x), data = mByG, size = 10 * cByG$x/max(cByG$x)) + 
+            geom_hline(aes(yintercept = meanLine), data = meanLine, lty = 2) + 
+            theme_bw() + 
+            scale_x_discrete(name = &quot;&quot;) + 
+            scale_y_continuous(&quot;Critic Score&quot;) + 
+            theme(axis.text.x = element_text(angle = 90))
+        print(p)
+    })
+    output$time_plot &lt;- renderPlot({
+                # most of the data processing is done with R. The SQL resulted in a 
+        # poorly performing app, often timing out. Using R for the processing
+        # and aggregation sped up the app by 10-1000 fold. 
+        # bringing in the scores from the metadata table
+        scores &lt;- dbGetQuery(con2, &quot;select rtid, criticScore, studio from metadata&quot;)
+        # bringing in the genre from the genres table
+        genres &lt;- dbGetQuery(con2, &quot;select rtid, genre from genres&quot;)
+        # bringing in the mapping between rtid and id
+        link &lt;- dbGetQuery(con2, &quot;select rtid, id from rtid&quot;)
+        # the mojo release dates
+        dates &lt;- dbGetQuery(con2, &quot;select id, month, year from mojo&quot;)
+        dbDisconnect(con2) # release the connection
+
+        # dropping the films from other studios
+        scores &lt;- scores[scores$studio == input$studio, ]
+        # merges does a natural join, drops unrelated ids
+        data &lt;- merge(scores, genres, by = &quot;rtid&quot;) 
+        # bringing in the linking between id and rtid
+        data &lt;- merge(data, link, by = &quot;rtid&quot;) 
+        # bringing in the release dates
+        data &lt;- merge(data, dates, by = &quot;id&quot;)
+        # formating as date for R
+        data$date &lt;- as.Date(paste(data$year, data$month, &quot;01&quot;, sep = &quot;-&quot;))
+        # getting mean/counts by genre
+        mByG &lt;- aggregate(data$criticScore, by = list(data$genre),
+                          mean)
+        cByG &lt;- aggregate(rep(1, length(data$genre)), by = list(data$genre),
+                          sum)
+        # getting mean/counts by month
+        mByM &lt;- aggregate(data$criticScore, by = list(data$date),
+                          mean)
+        cByM &lt;- aggregate(rep(1, length(data$date)), 
+                          list(data$date),
+                          sum)
+        # overall mean
+        meanLine &lt;- data.frame(meanLine = mean(data$criticScore, na.rm = TRUE))
+        # grammar of graphics syntax to generate the timeseries plot
+        p &lt;- ggplot() + 
+            geom_point(aes(x = date, y = criticScore), data = data, alpha = 0.25) + 
+            geom_point(aes(x = Group.1, y = x), data = mByM, size = cByM$x) + 
+            geom_line(aes(x = Group.1, y = x), data = mByM) + 
+            geom_smooth(aes(x = date, y = criticScore), data = data, method = &quot;lm&quot;) + 
+            theme_bw() +
+            scale_x_date(&quot;&quot;, breaks = &quot;1 years&quot;, labels = date_format(&quot;%Y&quot;)) + 
+            scale_y_continuous(&quot;Critic Score&quot;)
+        print(p)
+    })
+})
+</code></pre>
+
+<p>As with <code>ui.R</code>, a connection is established to the MySQL database named 
+<code>movies</code>. The Rotten Tomatoes IDs and scores for the movies from the user 
+provided studio (<code>input$studio</code>) are pulled out with the first query and stored 
+as the <code>scores</code> object in R. The second query abstracts the Rotten Tomatoes IDs 
+and genres for films provided by the user provided studio and the results are
+stored as the R object <code>genres</code>. Testing indicated that a merge in R was 
+significantly faster than a join using the MySQL connected database and so the
+two data objects were merged along <code>rtid</code> in R. Testing again indicated that
+there were significant performance advantages to doing the aggregation in R 
+and so the mean and counts for each genre was computed in R using <code>aggregate</code>. 
+The resulting data was then used to produce a plot <code>p</code>. Working with the 
+plotting code, a point was placed at the location of each film&#39;s critic score
+with a high degree of transparency, a second darker point was placed at the 
+mean critic score for each genre with the size of the point being proportional 
+to the number of films in that genre and a dashed line was drawn at the pooled 
+mean. This plot is the <code>genre_plot</code> referenced in the <code>ui.R</code> file and is drawn
+for the user. </p>
+
+<p>The other apps, <code>genre</code>, <code>actor</code>, <code>reviewer</code> and <code>publication</code> take a similar 
+form. The code can be found in my 
+<a href="https://github.com/iacobus42/movies/tree/master/shiny">GitHub repo</a>.</p>
+
+
+</section>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>

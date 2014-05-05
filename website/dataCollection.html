@@ -28,7 +28,7 @@
          <span class="icon-bar"></span>
          <span class="icon-bar"></span>
        </a>
-       <a class="brand" href="index.html">Visual Tomatoes</a>
+       <a class="brand" href="../">Visual Tomatoes</a>
        <div class="nav-collapse collapse" id="main-menu">
         <ul class="nav" id="main-menu-left">
           <li>
@@ -83,46 +83,36 @@
   </div>
   <div class="row">
     <div class="span12">
-      <p>
-<a href = "http://www.rottentomatoes.com">Rotten Tomatoes</a> aggregates movie 
-reviews and rates each movie as being "fresh" or "rotten" based on the fraction 
-of reviews for the movie that were "fresh." However, this may not always provide 
-the best estimation of whether a film is "fresh" or "rotten," particularly when 
-the movie has a wide release and is nearly universally reviewed. Many reviewers 
-may have interests that render their reviews for movies of certain genres to 
-be harsher than their peers or may have an affinity for particularly actors, 
-directors or studios. Additionally, some actors or studios may be more highly
-rated in certain genres or years than in others. 
-</p><p>
-Conveniently, Rotten Tomatoes provides a possible method for exploring these 
-questions. Rotten Tomatoes provides an API service from which data for a given 
-movie, such as the complete cast listing, the director, the genres and the 
-studio can be obtained. Additionally, it is possible to extract for each review
-the reviewer name, publication, score (if provided) and whether the review was
-"fresh" or "rotten." 
-</p><p>
-Using the Rotten Tomatoes API, I constructed a database containing information
-about over 5,000 movies from 1998 to 2014. The database contains the review 
-score and associated metadata (e.g., reviewer, publication, cast, genre and 
-studio). Using this data, I constructed five sub-apps, each exploring 
-how reviews are effected by each of the metadata listed above. Using the 
-app, it is possible to visualize how harsh or forgiving a given reviewer or 
-publication is or how the quality of films featuring a given actor changes 
-by genre or over time. 
-</p><p>
-These visualizations provide insight into the dynamics of the review process and
-the relative strengths and weaknesses of different actors and studios. The 
-resulting information and knowledge is not only interesting but also relevant to
-producing "unbiased" estimates of aggregated reviews. Producing unbiased 
-estimates, such as the method used by 
-<a href ="http://www.beeradvocate.com/help/?topic=ratings">Beer Advocate</a>,
-is an area of active interest and is important given that reviews are generally
-provided non-randomly. By considering the reviewer's prior history and 
-preferences relative to the reviewer's peers, it may be possible to produce a
-more objective score. </p>
-    </div>
-  </div>
-</header>
+<h3>Obtaining the Data</h3>
+
+<p>Rotten Tomatoes only provides very limited lists of recent movies and does not
+provide a meaningful way to filter these lists. The vast majority of films are
+never reviewed and so a simple chronological ordering is not a practical 
+source of titles. Instead, I populated the set of movies for analysis using the 
+data on <a href="http://www.boxofficemojo.com">Box Office Mojo</a>. This website provides 
+information about a film&#39;s gross, which is a meaningful variable to sort on. </p>
+
+<p>After sorting the tables by gross, I scrapped the top 300 movies for each 
+year from 1998 to 2013 and for Q1 2014. The scrapping was done using Python 2.7
+and Beautiful Soup 4 
+(<a href="https://github.com/iacobus42/movies/blob/master/collection/getMojoTitles.py">script</a>).
+This script parses the HTML of the Box Office Mojo website, abstracts the 
+relevant data elements and writes them to a MySQL database using the <code>MySQLdb</code>
+library. All data is insert using loops and <code>INSERT</code> SQL commands. </p>
+
+<p>The Rotten Tomatoes data was also obtained using Python. The data is JSON 
+formatted. For the metadata, 
+cast and genre information was obtained using <a href="https://GitHub.com/zachwill/rottentomatoes">zachwill&#39;s Rotten Tomatoes Python
+library</a>. I wanted all of the 
+reviews and so for the review data, I wrote my own API calls. The extensively 
+commented scripts for each task are linked below:</p>
+
+<ul>
+<li><a href="https://github.com/iacobus42/movies/blob/master/collection/getRottenTomatoesIDs.py">Getting Rotten Tomatoes IDs</a></li>
+<li><a href="https://github.com/iacobus42/movies/blob/master/collection/getRTCastInfo.py">Getting cast information</a></li>
+<li><a href="https://github.com/iacobus42/movies/blob/master/collection/getMetaData.py">Getting metadata and genres</a></li>
+<li><a href="https://github.com/iacobus42/movies/blob/master/collection/getReviews.py">Getting reviews</a></li>
+</ul>
 
 </section>
 
