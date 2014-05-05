@@ -7,7 +7,7 @@ con <- dbConnect(m, user='simmerin',
                  dbname='movies')
 pubs <- dbGetQuery(con, "select distinct publication from reviews")$publication
 
-shinyUI(fluidPage(
+shinyUI(fluidPage(theme = "http://jacobsimmering.com/documents/bootstrap.css",  
     titlePanel(""),
     sidebarLayout(
         sidebarPanel(

@@ -7,7 +7,7 @@ con <- dbConnect(m, user='simmerin',
                  dbname='movies')
 genres <- dbGetQuery(con, "select distinct genre from genres")$genre
 
-shinyUI(pageWithSidebar(    
+shinyUI(fluidPage(theme = "http://jacobsimmering.com/documents/bootstrap.css",  
     headerPanel(""),
     sidebarPanel(
         selectInput("genre",

@@ -7,7 +7,7 @@ con <- dbConnect(m, user='simmerin',
                  dbname='movies')
 critic <- dbGetQuery(con, "select distinct reviewer from reviews")$reviewer
 
-shinyUI(fluidPage(
+shinyUI(fluidPage(theme = "http://jacobsimmering.com/documents/bootstrap.css",  
     titlePanel(""),
     sidebarLayout(
         sidebarPanel(

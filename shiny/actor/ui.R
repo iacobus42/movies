@@ -10,7 +10,7 @@ actors <- aggregate(rep(1, length(cast)), list(cast), sum)
 actors <- actors[actors$x > 12, 1]
 dbDisconnect(con)
 
-shinyUI(pageWithSidebar(    
+shinyUI(fluidPage(theme = "http://jacobsimmering.com/documents/bootstrap.css",     
     headerPanel(""),
     sidebarPanel(
         selectInput("actor",

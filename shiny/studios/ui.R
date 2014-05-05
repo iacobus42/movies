@@ -7,7 +7,7 @@ con <- dbConnect(m, user='simmerin',
                  dbname='movies')
 studios <- dbGetQuery(con, "select distinct studio from metadata")$studio
 dbDisconnect(con)
-shinyUI(pageWithSidebar(    
+shinyUI(fluidPage(theme = "http://jacobsimmering.com/documents/bootstrap.css",  
     headerPanel(""),
     sidebarPanel(
         selectInput("studio",
