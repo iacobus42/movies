@@ -12,7 +12,7 @@ shinyUI(fluidPage(
     sidebarLayout(
         sidebarPanel(
             selectInput("critic",
-                        label = "Which Publication?",
+                        label = "Which Reviewer?",
                         choices = critic,
                         selected = "A.O. Scott")
         ),
