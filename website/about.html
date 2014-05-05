@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Visualizing Rotten Tomatoes</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+<body class="preview" id="top" data-target=".subnav" data-offset="80">
+  <!-- Navbar
+    ================================================== -->
+ <div class="navbar navbar-static-top">
+   <div class="navbar-inner">
+     <div class="container">
+       <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+       </a>
+       <a class="brand" href="../">Visual Tomatoes</a>
+       <div class="nav-collapse collapse" id="main-menu">
+        <ul class="nav" id="main-menu-left">
+          <li>
+            <a href="index.html">Home</a>
+          </li>
+          <li>
+            <a href="about.html">About</a>
+          </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Methods <b class="caret"></b></a>
+            <ul class="dropdown-menu" id="swatch-menu">
+              <li><a href="database.html">Database Structure</a></li>
+              <li><a href="dataCollection.html">Data Collection</a></li>
+              <li><a href="shiny.html">Visualization</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="http://github.com/iacobus42/movies">Code on GitHub</a>
+          </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps <b class="caret"></b></a>
+            <ul class="dropdown-menu" id="swatch-menu">
+              <li><a href="studio.html">Visualize by Studio</a></li>
+              <li><a href="genre.html">Visualize by Genre</a></li>
+              <li><a href="actor.html">Visualize by Actor</a></li>
+              <li><a href="reviewer.html">Visualize by Reviewer</a></li>
+              <li><a href="publication.html">Visualize by Publication</a></li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav pull-right" id="main-menu-right">
+          <li><a rel="tooltip" target="_blank" href="http://builtwithbootstrap.com/" title="Showcase of Bootstrap sites &amp; apps" onclick="_gaq.push(['_trackEvent', 'click', 'outbound', 'builtwithbootstrap']);">Built With Bootstrap <i class="icon-share-alt"></i></a></li>
+        </ul>
+       </div>
+     </div>
+   </div>
+ </div>
+</div>
+<div class="container">
+
+
+<!-- content
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="row">
+    <div class="span6">
+      <h1>Rotten Reviewers</h1>
+      <p class="lead">Visualizing Rotten Tomatoes Reviews.</p>
+    </div>
+    <div class="span6">
+    </div>
+  </div>
+  <div class="row">
+    <div class="span12">
+      <p>The data collection, database construction and visualizations for this
+        project were constructed by <a href="http://jacobsimmering.com">
+        Jacob Simmering</a> as part of a course project in database management
+        and web services. 
+      </p>
+      <p>
+        The data was obtained by web scraping with Beautiful Soup and Python as
+        well as using the Rotten Tomatoes API. The data was stored in a MySQL
+        database and the dynamic visualizations were produced using the Shiny
+        package and the R Project for Statistical Computing. 
+      </p>
+      <p>
+        More details about how the data was collected, stored or analyzed can
+        be found under the "Methods" tab. All of the code for the project, 
+        including this website, can be found on 
+        <a href="http://github.com/iacobus42/movies">GitHub</a>. 
+      </p>
+    </div>
+  </div>
+</header>
+
+</section>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>

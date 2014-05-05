@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Visualizing Rotten Tomatoes</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+<body class="preview" id="top" data-target=".subnav" data-offset="80">
+  <!-- Navbar
+    ================================================== -->
+ <div class="navbar navbar-static-top">
+   <div class="navbar-inner">
+     <div class="container">
+       <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+       </a>
+       <a class="brand" href="../"></a>
+       <div class="nav-collapse collapse" id="main-menu">
+        <ul class="nav" id="main-menu-left">
+          <li>
+            <a href="index.html">Home</a>
+          </li>
+          <li>
+            <a href="studo.html">Visualize by Studio</a>
+          </li>
+                    <li>
+            <a href="genre.html">Visualize by Genre</a>
+          </li>
+                    <li>
+            <a href="actor.html">Visualize by Actor</a>
+          </li>
+                    <li>
+            <a href="reviewer.html">Visualize by Reviewer</a>
+          </li>
+                              <li>
+            <a href="publication.html">Visualize by Publication</a>
+          </li>
+        </ul>
+       </div>
+     </div>
+   </div>
+ </div>
+</div>
+<div class="container">
+
+
+<!-- content
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="row">
+    <div class="span6">
+      <h1>Reviews by Studio</h1>
+    </div>
+    <div class="span6">
+    </div>
+  </div>
+  <div class="row">
+    <div class="span12">
+      <div class="row">
+        <div class="span2">
+          <h3>Overview</h3>
+        </div>
+        <div class="span10">
+          <p>This panel shows the performance of a user selected genre and over 
+            time. Select the genre of interest from 
+            the dropdown menu and the graph to
+            the right will update with the correct data.</p>
+          <p>Each light grey point is a unique film's rating and the solid black
+            line is the monthly mean critic score for films in that genre. The 
+            blue line is the least squares estimate of the change in the 
+            mean rating over time. The grey ribbon is the 95% confidence 
+            interval about the mean. 
+          </p>
+        </div>
+      </div>
+      <div class=".transparent-mask">
+        <iframe src = "http://jacobsimmering.com:3838/genre/"
+        style = "border: none; width: 940px; height: 700px">
+      </div>
+    </div>
+  </div>
+</header>
+
+</section>
+ <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>

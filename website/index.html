@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Visualizing Rotten Tomatoes</title>
+
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+<body class="preview" id="top" data-target=".subnav" data-offset="80">
+  <!-- Navbar
+    ================================================== -->
+ <div class="navbar navbar-static-top">
+   <div class="navbar-inner">
+     <div class="container">
+       <a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+         <span class="icon-bar"></span>
+       </a>
+       <a class="brand" href="../">Visual Tomatoes</a>
+       <div class="nav-collapse collapse" id="main-menu">
+        <ul class="nav" id="main-menu-left">
+          <li>
+            <a href="index.html">Home</a>
+          </li>
+          <li>
+            <a href="about.html">About</a>
+          </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Methods <b class="caret"></b></a>
+            <ul class="dropdown-menu" id="swatch-menu">
+              <li><a href="database.html">Database Structure</a></li>
+              <li><a href="dataCollection.html">Data Collection</a></li>
+              <li><a href="shiny.html">Visualization</a></li>
+            </ul>
+          </li>
+          <li>
+            <a href="http://github.com/iacobus42/movies">Code on GitHub</a>
+          </li>
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#">Apps <b class="caret"></b></a>
+            <ul class="dropdown-menu" id="swatch-menu">
+              <li><a href="studio.html">Visualize by Studio</a></li>
+              <li><a href="genre.html">Visualize by Genre</a></li>
+              <li><a href="actor.html">Visualize by Actor</a></li>
+              <li><a href="reviewer.html">Visualize by Reviewer</a></li>
+              <li><a href="publication.html">Visualize by Publication</a></li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="nav pull-right" id="main-menu-right">
+          <li><a rel="tooltip" target="_blank" href="http://builtwithbootstrap.com/" title="Showcase of Bootstrap sites &amp; apps" onclick="_gaq.push(['_trackEvent', 'click', 'outbound', 'builtwithbootstrap']);">Built With Bootstrap <i class="icon-share-alt"></i></a></li>
+        </ul>
+       </div>
+     </div>
+   </div>
+ </div>
+</div>
+<div class="container">
+
+
+<!-- content
+================================================== -->
+<header class="jumbotron subhead" id="overview">
+  <div class="row">
+    <div class="span6">
+      <h1>Rotten Reviewers</h1>
+      <p class="lead">Visualizing Rotten Tomatoes Reviews.</p>
+    </div>
+    <div class="span6">
+    </div>
+  </div>
+  <div class="row">
+    <div class="span12">
+      <p>
+<a href = "http://www.rottentomatoes.com">Rotten Tomatoes</a> aggregates movie 
+reviews and rates each movie as being "fresh" or "rotten" based on the fraction 
+of reviews for the movie that were "fresh." However, this may not always provide 
+the best estimation of whether a film is "fresh" or "rotten," particularly when 
+the movie has a wide release and is nearly universally reviewed. Many reviewers 
+may have interests that render their reviews for movies of certain genres to 
+be harsher than their peers or may have an affinity for particularly actors, 
+directors or studios. Additionally, some actors or studios may be more highly
+rated in certain genres or years than in others. 
+</p><p>
+Conveniently, Rotten Tomatoes provides a possible method for exploring these 
+questions. Rotten Tomatoes provides an API service from which data for a given 
+movie, such as the complete cast listing, the director, the genres and the 
+studio can be obtained. Additionally, it is possible to extract for each review
+the reviewer name, publication, score (if provided) and whether the review was
+"fresh" or "rotten." 
+</p><p>
+Using the Rotten Tomatoes API, I constructed a database containing information
+about over 5,000 movies from 1998 to 2014. The database contains the review 
+score and associated metadata (e.g., reviewer, publication, cast, genre and 
+studio). Using this data, I constructed five sub-apps, each exploring 
+how reviews are effected by each of the metadata listed above. Using the 
+app, it is possible to visualize how harsh or forgiving a given reviewer or 
+publication is or how the quality of films featuring a given actor changes 
+by genre or over time. 
+</p><p>
+These visualizations provide insight into the dynamics of the review process and
+the relative strengths and weaknesses of different actors and studios. The 
+resulting information and knowledge is not only interesting but also relevant to
+producing "unbiased" estimates of aggregated reviews. Producing unbiased 
+estimates, such as the method used by 
+<a href ="http://www.beeradvocate.com/help/?topic=ratings">Beer Advocate</a>,
+is an area of active interest and is important given that reviews are generally
+provided non-randomly. By considering the reviewer's prior history and 
+preferences relative to the reviewer's peers, it may be possible to produce a
+more objective score. </p>
+    </div>
+  </div>
+</header>
+
+</section>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+  </body>
+</html>
