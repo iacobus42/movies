@@ -1,0 +1,284 @@
+Rotten Reviewers (And Studios and Actors)
+=========================================
+Problem Overview
+----------------
+[Rotten Tomatoes](www.rottentomatoes.com) aggergates movie reviews and rates 
+each movie as being "fresh" or "rotten" based on the fraction of reviews for
+the movie that were "fresh." However, this may not always provide the best 
+estimation of whether a film is "fresh" or "rotten," particularly when the 
+movie has a wide release and is nearly universially reviewed. Many reviewers 
+may have interests that render their reviews for movies of certain genres to 
+be harsher than their peers or may have an affinity for particulary actors, 
+directors or studios. 
+
+Conventiently, Rotten Tomatoes provides a possible method for exploring this 
+question. Rotten Tomatoes provides an API service from which data for a given 
+movie, such as the complete cast listing, the director, the genres and the 
+studio can be obtained. Additionally, it is possible to extract for each review
+the reviewer name, publication, score (if provided) and whether the review was
+"fresh" or "rotten." 
+
+App Description
+---------------
+### Studio
+### Genre
+### Actor
+### Reviewer
+### Publication
+
+Detailed Methods
+----------------
+
+### Database Structure
+
+Due to the lower system demands, greater documentation with Python and R and
+the JSON format of the Rotten Tomatoes API, I opted to use MySQL over Oracle and 
+APEX. The MySQL database contains six 
+tables. The first table, `mojo` contains four elements, 
+
+* `id` (Primary key)
+* `title`
+* `release year`
+* `release month`
+
+The first element, `id`, is an int squence starting at 1 and going to 5018. This 
+maps to the top 300 movies from each year 1998 to 2013 and the films released 
+in Q1 2014. The second element is a `VARCHAR` string that contains the title
+of the film. The third and fourth elements are both ints that contain the 
+month and year of the release date. 
+
+The second table `rtid` provides a mapping from the titles derived from Box
+Office Mojo to the Rotten Tomatoes IDs. These were obtained using the Rotten
+Tomatoes API search feature using the title as the input string. The first 
+matching result with the same year as from Box Office Mojo provided the 
+Rotten Tomatoes ID. To this end, the table contains two elements, 
+
+* `id` (Primary key)
+* `rtid`
+
+The `id` variable is the same as the `id` variable in the `mojo` table. This
+provides a linkage from Rotten Tomatoes to the Box Office Mojo data. The Rotten
+Tomatoes ID is given by the `rtid` variable, an int. Not all
+of the searches returned a match, approximately 80% (4037) of the titles were 
+mapped to a Rotten Tomatoes ID. 
+
+The third table, `cast`, contains information about the casts of the various
+films. This table contains 4 elements:
+
+* `castPK` (Primary key)
+* `rtid`
+* `actorID`
+* `actorName`
+
+The `castPK` is an int that serves as the primary key. The variable `rtid` 
+serves as the linkage to the other tables via the Rotten Tomatoes ID. The 
+variables `actorID` and `actorName` provide information about the actor: 
+`actorID` is the Rotten Tomatoes actor ID and is an int, `actorName` is the 
+name of the actor and is a VARCHAR. While not strictly normalized, I opted 
+against making a seperate table to contain a mapping between `actorID` and 
+`actorName`. Any analysis using this table would depend on a join and it did
+not make sense to divide up the data only to merge it at the time of analysis. 
+
+The fourth table, `metadata`, contains the Rotten Tomatoes metadata for the 
+movie. Specifically, this table contains seven elements:
+
+* `mpk` (Primary key)
+* `rtid`
+* `criticScore`
+* `userScore`
+* `director`
+* `studio`
+* `rating`
+* `runTime`
+
+`mpk` is a squence primary key and is an int. `rtid` provides a mapping to the
+other Rotten Tomatoes data and via `id` to the Box Office Mojo data. 
+`criticScore` and `userScore` are both ints that contain the critic and user
+scores on a scale of 0 to 100, respectively. The first director listed on 
+Rotten Tomatoes for the film is stored as a VARCHAR labeled `director`. The 
+studio that produced the film is contained in a VARCHAR as `studio`. The MPAA 
+rating of the movie is contained in the VARCHAR element `rating` and the 
+run-time, in minutes, is stored as an int labeled `runTime`. 
+
+The fifth table contains information about each films genre, as classified by
+Rotten Tomatoes. Each film can belong to a number of genres and so this was 
+not combined with the metadata in `metadata`. Instead an additional table
+named `genres` was constructed. This table has three elements, 
+
+* `gpk` (Primary key)
+* `rtid`
+* `genre`
+
+Where `gpk` is an int sequence and served as the primary key. `genre` is
+a VARCHAR and contains a string describing the genre. Each `rtid` may occur
+multiple times as the film may belong to multiple genres. 
+
+The sixth table contains the reviews and is named `reviews`. It has 
+
+* `reviewID` (Primary key)
+* `rtid`
+* `reviewer`
+* `publication`
+* `month`
+* `year`
+* `score`
+* `fresh`
+
+In this case, `reviewID` is an sequence int that serves as the primary key.
+`rtid` provides the linkage to the other tables. `reviewer` and `publication`
+are both VARCHARs that contain a string that is the reviewer's name and 
+the publication's name, respectively. `month` and `year` describe the month
+and year of the review publication. For the reviews with orgininal scores 
+provided by Rotten Tomatoes, each score was transformed to a 0-100 scale and
+stored as an int in the `score` element. Finally, `fresh` is an int containing
+0 or 1 depending on whether Rotten Tomatoes coded the review as `fresh` or 
+`rotten`. 
+
+### Obtaining the Data
+
+Rotten Tomatoes only provides very limited lists of recent movies and does not
+provide a meaningful way to filter these lists. The vast majority of films are
+never reviewed and so a simple chronological ordering is not a practical 
+source of titles. Instead, I populated the set of movies for analysis using the 
+data on [Box Office Mojo](www.boxofficemojo.com). This website provides 
+information about a film's gross, which is a meaningful variable to sort on. 
+
+After sorting the tables by gross, I scrapped the top 300 movies for each 
+year from 1998 to 2013 and for Q1 2014. The scrapping was done using Python 2.7
+and Beautiful Soup 4 
+([script](https://github.com/iacobus42/movies/blob/master/collection/getMojoTitles.py)).
+This script parses the HTML of the Box Office Mojo website, abstracts the 
+relevant data elements and writes them to a MySQL database using the `MySQLdb`
+library. All data is insert using loops and `INSERT` SQL commands. 
+
+The Rotten Tomatoes data was also obtained using Python. The data is JSON 
+formatted. For the metadata, 
+cast and genre information was obtained using [zachwill's Rotten Tomatoes Python
+library](https://github.com/zachwill/rottentomatoes). I wanted all of the 
+reviews and so for the review data, I wrote my own API calls. The scripts for
+each task are linked below:
+
+* [Getting Rotten Tomatoes IDs](https://github.com/iacobus42/movies/blob/master/collection/getRottenTomatoesIDs.py)
+* [Getting cast information](https://github.com/iacobus42/movies/blob/master/collection/getRTCastInfo.py)
+* [Getting metadata and genres](https://github.com/iacobus42/movies/blob/master/collection/getMetaData.py)
+* [Getting reviews](https://github.com/iacobus42/movies/blob/master/collection/getReviews.py)
+
+As with the script that parses the Box Office Mojo table, each of these 
+scripts used SQL `INSERT` commands to populate the MySQL tables. Additionally,
+each of these scripts created the tables --- there is no other required SQL
+code. 
+
+### Analysis
+
+As SQL provides essentially zero analytical capacity and no visualization 
+ability, I opted to connect the MySQL database to R. R is a functional domain
+specific language with a strong emphasis on data analysis and visualization 
+and is rapidly becoming a domiant platform in data analytics and data mining. 
+R provides simple, clear and powerful methods for manipulating and analyzing 
+data. Additionally, the [`ggplot2`](http://cran.r-project.org/web/packages/ggplot2/index.html) 
+package forms a very powerful graphical system for R and the 
+[`shiny`](http://cran.r-project.org/web/packages/shiny/index.html) package makes
+the creation of dynamic graphics and web apps much easier than traditional 
+methods, such as PHP. 
+
+A `shiny` app requires two seperate files, `ui.R` and `server.R`. `ui.R` 
+describes the front-end user interface, how the user change inputs and how the 
+results and displayed. The `server.R` file describes processing done on those
+inputs and contains the code for the generation of a graphic. The code for 
+each of the `shiny` apps can be found on my 
+[github repo](https://github.com/iacobus42/movies/tree/master/shiny). 
+
+Consider
+the [`studio` app](http://jacobsimmering.com:3838/studio/). The user is 
+presented with a webpage with two elements, the first is a dropdown menu 
+containing a list of the distinct studios in the Rotten Tomatoes data and the 
+second is a plot of each film's review and the mean review by genre for all 
+the movies produced by that studio. The front-end is coded as 
+
+```
+library(DBI)
+library(RMySQL)
+m <- dbDriver("MySQL");
+con <- dbConnect(m, user='simmerin', 
+                 password='simmerin',
+                 host='localhost',
+                 dbname='movies')
+studios <- dbGetQuery(con, "select distinct studio from metadata")$studio
+
+shinyUI(pageWithSidebar(    
+    headerPanel(""),
+    sidebarPanel(
+        selectInput("studio",
+                    label = "Which Studio?",
+                    choices = studios,
+                    selected = studios[1])),
+    mainPanel(
+        plotOutput(outputId = "genre_plot"))))
+```
+
+Rather simply, this code connects to a MySQL database named `movies` and 
+performs the query shown to get a list of all the studios in the data. It then
+describes a layout with a sidebar providing a dropdown box (`selectInput`) 
+containing the results of the query and a main panel that contains an 
+element named `genre_plot`. 
+
+The `server.R` file is significantly more complex:
+```
+shinyServer(function(input, output) {
+    library(ggplot2)
+    library(DBI)
+    library(RMySQL)
+    m <- dbDriver("MySQL");
+    con2 <- dbConnect(m, user='simmerin', 
+                     password='simmerin',
+                     host='localhost',
+                     dbname='movies')
+    output$genre_plot <- renderPlot({
+        scores <- dbGetQuery(con2, paste("select rtid, criticScore from metadata 
+                    where studio = '", input$studio, "'", sep = ""))
+        genres <- dbGetQuery(con2, paste("select rtid, genre from genres 
+                    where rtid in 
+                    (select rtid from metadata 
+                    where studio = '", input$studio, "')", sep = ""))
+        data <- merge(scores, genres, by = "rtid")
+        mByG <- aggregate(data$criticScore, by = list(data$genre),
+                          mean)
+        cByG <- aggregate(rep(1, length(data$genre)), by = list(data$genre),
+                          sum)
+        meanLine <- mean(data$criticScore, na.rm = TRUE)
+        p <- ggplot() + 
+            geom_point(aes(x = genre, y = criticScore), data = data, alpha = 0.25) + 
+            geom_point(aes(x = Group.1, y = x), data = mByG, size = 10 * cByG$x/max(cByG$x)) + 
+            geom_hline(aes(yintercept = meanLine), lty = 2) + 
+            theme_bw() + 
+            scale_x_discrete(name = "") + 
+            scale_y_continuous("Critic Score") + 
+            theme(axis.text.x = element_text(angle = 90))
+        print(p)
+    })
+})
+```
+
+As with `ui.R`, a connection is established to the MySQL database named 
+`movies`. The Rotten Tomatoes IDs and scores for the movies from the user 
+provided studio (`input$studio`) are pulled out with the first query and stored 
+as the `scores` object in R. The second query abstracts the Rotten Tomatoes IDs 
+and genres for films provided by the user provided studio and the results are
+stored as the R object `genres`. Testing indicated that a merge in R was 
+signifcantly faster than a join using the MySQL connected database and so the
+two data objects were merged along `rtid` in R. Testing again indicated that
+there were significant performance advantages to doing the aggregation in R 
+and so the mean and counts for each genre was computed in R using `aggregate`. 
+The resulting data was then used to produce a plot `p`. Working with the 
+plotting code, a point was placed at the location of each film's critic score
+with a high degree of transparency, a second darker point was placed at the 
+mean critic score for each genre with the size of the point being proportional 
+to the number of films in that genre and a dashed line was drawn at the pooled 
+mean. This plot is the `genre_plot` referenced in the `ui.R` file and is drawn
+for the user. 
+
+The other apps, `genre`, `actor`, `reviewer` and `publication` take a similar 
+form. The code can be found in my [Github repo](https://github.com/iacobus42/movies/tree/master/shiny).
+
+
+
