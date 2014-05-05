@@ -2,6 +2,7 @@ shinyServer(function(input, output) {
     library(ggplot2)
     library(DBI)
     library(RMySQL)
+    library(scales)
     output$genre_plot <- renderPlot({
         m <- dbDriver("MySQL");
         con2 <- dbConnect(m, user='simmerin', 
