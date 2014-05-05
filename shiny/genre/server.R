@@ -12,9 +12,7 @@ shinyServer(function(input, output) {
         ids  <- dbGetQuery(con2, "select id, rtid from rtid")
         scores <- dbGetQuery(con2, "select rtid, criticScore from metadata")
         genres <- dbGetQuery(con2, "select rtid, genre from genres")
-        dates <- dbGetQuery(con2, "select id, month, year from mojo")
-        dbDisconnect(con2)
-        
+        dates <- dbGetQuery(con2, "select id, month, year from mojo")        
         genres <- genres[genres$genre == input$genre, ]
         scores <- scores[scores$rtid %in% genres$rtid, ]
         data <- merge(ids, scores, by = "rtid")
