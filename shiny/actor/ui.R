@@ -7,7 +7,8 @@ con <- dbConnect(m, user='simmerin',
                  dbname='movies')
 cast <- dbGetQuery(con, "select actorName from cast")$actorName
 actors <- aggregate(rep(1, length(cast)), list(cast), sum)
-actors <- actors[actors$x >= 5, ]
+actors <- actors[actors$x >= 5, 1]
+dbDisconnect(con)
 
 shinyUI(pageWithSidebar(    
     headerPanel(""),
