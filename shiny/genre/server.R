@@ -9,15 +9,16 @@ shinyServer(function(input, output) {
                       host='localhost',
                       dbname='movies')
     output$genre_plot <- renderPlot({
-        ids  <- dbGetQuery(con2, paste("select id, rtid from rtid where rtid in (select rtid from genres where genre = '", input$genre, "')", sep = ""))
-        scores <- dbGetQuery(con2, paste("select rtid, criticScore from metadata where rtid in 
-                                         (select rtid from genres where genre ='", input$genre, "')", sep = ""))
+        ids  <- dbGetQuery(con2, "select id, rtid from rtid")
+        scores <- dbGetQuery(con2, "select rtid, criticScore from metadata")
+        genres <- dbGetQuery(con2, "select rtid, genre from genres")
+        dates <- dbGetQuery(con2, "select id, month, year from mojo")
+        dbDisconnect(con2)
+        
+        genres <- genres[genres$genre == input$genre, ]
+        scores <- scores[scores$rtid %in% genre$rtid, ]
         data <- merge(ids, scores, by = "rtid")
-        releaseDate <- dbGetQuery(con2, paste("select id, month, year from mojo where id in 
-                                              (select id from rtid where rtid in 
-                                              (select rtid from genres where genre = '", 
-                                              input$genre, "'))", sep = ""))
-        data <- merge(data, releaseDate, by = "id")
+        data <- merge(data, dates, by = "id")
         data$date <- as.Date(paste(data$year, data$month, "01", sep = "-"))
         mByM <- aggregate(data$criticScore, list(data$date), mean, na.rm = TRUE)
         cByM <- aggregate(rep(1, length(data$date)), list(data$date), sum)
