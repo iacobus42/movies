@@ -16,7 +16,7 @@ shinyServer(function(input, output) {
         dbDisconnect(con2)
         
         genres <- genres[genres$genre == input$genre, ]
-        scores <- scores[scores$rtid %in% genre$rtid, ]
+        scores <- scores[scores$rtid %in% genres$rtid, ]
         data <- merge(ids, scores, by = "rtid")
         data <- merge(data, dates, by = "id")
         data$date <- as.Date(paste(data$year, data$month, "01", sep = "-"))
